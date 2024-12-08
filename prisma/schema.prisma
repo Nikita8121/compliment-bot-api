@@ -12,3 +12,52 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id                   String  @id @default(uuid())
+  telegramId           String  @unique @map("telegram_id")
+  isAdmin              Boolean
+  canCreateCompliments Boolean
+
+  createdCompliments  ComplimentAssignment[] @relation("ComplimentAssigner")
+  receivedCompliments ComplimentAssignment[] @relation("ComplimentAssignee")
+
+  @@map("user")
+}
+
+model ComplimentReceipentProfile {
+  id           String @id @default(uuid())
+  name         String
+  language     String
+  timeZone     String @map("time_zone")
+  description  String
+  assignmentId String @unique @map("assignment_id")
+
+  assignment ComplimentAssignment? @relation(fields: [assignmentId], references: [id])
+
+  @@map("compliment_receipent_profile")
+}
+
+model ComplimentAssignment {
+  id              String @id @default(uuid())
+  creatorUserId   String @map("compliment_creator_user_id")
+  receipentUserId String @map("compliment_receipent_user_id")
+
+  creator                    User                        @relation("ComplimentAssigner", fields: [creatorUserId], references: [id])
+  receipent                  User                        @relation("ComplimentAssignee", fields: [receipentUserId], references: [id])
+  complimentsSchedule        ComplimentsSchedule[]
+  complimentReceipentProfile ComplimentReceipentProfile?
+
+  @@map("compliment_assignments")
+}
+
+model ComplimentsSchedule {
+  id           String   @id @default(uuid())
+  time         DateTime
+  assignmentId String   @map("assignment_id")
+
+  assignment ComplimentAssignment? @relation(fields: [assignmentId], references: [id])
+
+  @@unique([assignmentId, time])
+  @@map("compliments_schedule")
+}
