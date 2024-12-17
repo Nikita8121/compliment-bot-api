@@ -20,7 +20,6 @@ import { CqrsModule } from '@nestjs/cqrs';
     CqrsModule.forRoot(),
     LoggerModule.forRoot(createNestLoggingModuleOptions()),
     ScheduleModule.forRoot(),
-
     CoreModule,
     TelegramModule,
     DatabaseModule,
